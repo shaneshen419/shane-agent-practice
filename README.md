@@ -1,6 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # shane-agent-practice
 =======
+=======
+>>>>>>> a98cfb7 (first commit)
 # AI Agent学习记录
 
 **@shane shen**
@@ -328,4 +331,7 @@ README: http://localhost:8501/readme
 - **模型支持**: 阿里云DashScope、OpenAI等
 - **流式处理**: 实时响应生成
 - **多模态**: 支持文本和图像处理
+<<<<<<< HEAD
+>>>>>>> a98cfb7 (first commit)
+=======
 >>>>>>> a98cfb7 (first commit)
