@@ -1,6 +1,7 @@
 import streamlit as st
 from pathlib import Path
 from config import config_manager
+from utils.readme_client import ReadmeViewerLLM
 
 def readme_show_page():
     """显示README页面"""

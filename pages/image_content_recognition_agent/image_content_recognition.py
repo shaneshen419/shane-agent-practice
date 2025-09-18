@@ -2,7 +2,7 @@ import streamlit as st
 import time
 import os
 from PIL import Image
-from utils.llm_client import VisionLLMClient
+from utils.vision_llm_client import VisionLLMClient
 from utils.common import (
     format_model_description, 
     process_uploaded_image, 

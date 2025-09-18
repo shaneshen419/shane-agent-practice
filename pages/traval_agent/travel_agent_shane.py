@@ -1,6 +1,6 @@
 import streamlit as st
 import time
-from utils.llm_client import TravelPlannerLLM
+from utils.travel_planner_llm import TravelPlannerLLM
 from utils.common import generate_ics_content, format_model_description
 from config import config_manager
 
