@@ -92,7 +92,8 @@ class ConfigManager:
         
         # 1. 优先使用环境变量
         if api_config.get("use_environment_variables", True):
-            env_key = os.getenv("OPENAI_API_KEY") or os.getenv("API_KEY")
+            env_key = os.getenv("DEFAULT_API_KEY")
+            # print(f"从环境变量获取API密钥: {env_key}")
             if env_key:
                 return env_key
         
@@ -128,7 +129,7 @@ class ConfigManager:
         # 1. 优先使用环境变量
         api_config = self.get_api_config()
         if api_config.get("use_environment_variables", True):
-            env_base_url = os.getenv("OPENAI_API_BASE") or os.getenv("API_BASE_URL")
+            env_base_url = os.getenv("DEFAULT_API_KEY") or os.getenv("OPENAI_API_BASE") or os.getenv("API_BASE_URL")
             if env_base_url:
                 return env_base_url
         

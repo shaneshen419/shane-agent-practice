@@ -9,14 +9,15 @@ app:
 # API配置
 api:
   # 直接配置API密钥（请确保文件安全）
-  default_api_key: "sk-4a1ea5b99092432e94641d777ce20505"  # 你的实际API密钥
+  # default_api_key: ""  # 通过环境变量设置API密钥，避免硬编码在配置文件中
+  # 你可以通过设置环境变量 DEFAULT_API_KEY 来配置API密钥
   
   default_base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
   alternative_base_urls:
     - name: "阿里云DashScope"
       url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
       description: "阿里云官方API"
-      api_key: api.default_api_key  # 可选：为特定服务商配置专用密钥
+      api_key: ""  # 通过环境变量 DEFAULT_API_KEY 设置API密钥，避免硬编码在配置文件中
       
     - name: "OpenAI"
       url: "https://api.openai.com/v1"
