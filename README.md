@@ -25,10 +25,11 @@
 # 安装依赖
 pip install -r requirements.txt
 
-# 修改config.yaml中的api配置
-vim comfig/config.yaml
-default_api_key=""
-default_base_url=""
+# 配置环境变量
+1. windows
+set DEFAULT_API_KEY="sk-dev-key"
+2. linux
+export DEFAULT_API_KEY="sk-dev-key"
 
 # 开始执行
 streamlit run main.py --server.port 8501 --server.address 0.0.0.0
