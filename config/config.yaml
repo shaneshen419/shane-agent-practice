@@ -80,7 +80,7 @@ pages:
       - "📝 使用指南"
   
   stock_prediction:
-    title: "股票预测"
+    title: "功能目录" # 股票预测
     icon: "📈"
     description: "使用LSTM模型进行股票价格预测和分析"
     default_model: "qwen-turbo"
@@ -104,6 +104,34 @@ pages:
       - "✍️ 对话式修改"
       - "📊 结构化输出"
       - "🚀 逐步执行控制" 
+
+  # --- 新增 MCP Agent 的页面配置 ---
+  mcp_agent:
+    title: "🤖 超级智能助理 (MCP)"
+    icon: "🤖"
+    description: "请描述您的复杂目标，我将为您制定计划并协调专家团队完成任务。"
+    default_model: "qwen-max" # 建议为MCP使用能力最强的模型
+    api_key: "" # 如果需要特定的API key，可以在这里设置
+    base_url: "" # 如果需要特定的base URL，可以在这里设置
+    features:
+      - "🎯 复杂目标分解"
+      - "⚙️ 智能任务规划"
+      - "🤝 协同多位专家"
+    
+    # --- 核心：在这里注册可被 MCP 调度的专家工具 ---
+    available_tools:
+      travel_planner: # 工具名称，用于MCP规划
+        description: "一个专业的旅行规划师，可以制定详细的旅行计划、推荐酒店和航班。"
+        class: "TravelPlannerLLM" # 对应 llm_client.py 中的类名
+        page: "travel_agent" # 对应此工具的配置页面名，用于获取API Key等
+      image_analyzer:
+        description: "一个专业的图像分析师，可以识别和分析图片内容，并生成结构化报告。"
+        class: "VisionLLMClient" # 假设这是图像识别的类名
+        page: "image_recognition"
+      readme_viewer:
+        description: "一个专业的文档介绍员，可以查看和解释项目说明文档内容。"
+        class: "ReadmeViewerLLM" # 假设这是图像识别的类名
+        page: "readme"
 
 # 安全配置
 security:

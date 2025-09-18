@@ -1,6 +1,8 @@
 import streamlit as st
-from pages import travel_agent_show_page,image_contetn_recognition_show_page,readme_show_page,stock_prediction_agent_show_page,semiconductor_yield_show_page  
+# from pages import travel_agent_show_page,image_contetn_recognition_show_page,readme_show_page,stock_prediction_agent_show_page,semiconductor_yield_show_page  
+from pages import travel_agent_show_page,image_contetn_recognition_show_page,readme_show_page,semiconductor_yield_show_page  
 from config import config_manager
+from pages import mcp_agent
 
 def setup_page_config():
     """设置页面配置"""
@@ -93,12 +95,13 @@ def main():
         """, unsafe_allow_html=True)
         
         # 导航菜单 - 添加readme选项和股票预测选项
-        page_options = ["readme", "travel_agent", "image_recognition", "stock_prediction","semiconductor_yield"]
+        page_options = ["readme", "travel_agent", "image_recognition", "stock_prediction","semiconductor_yield","mcp_agent"]
         travel_config = config_manager.get_page_config("travel_agent")
         image_config = config_manager.get_page_config("image_recognition")
         readme_config = config_manager.get_page_config("readme")
         stock_config = config_manager.get_page_config("stock_prediction")
         yield_config = config_manager.get_page_config("semiconductor_yield")
+        mcp_config = config_manager.get_page_config("mcp_agent")
         
         selected_page = st.radio(
             "选择功能模块",
@@ -106,9 +109,10 @@ def main():
             format_func=lambda x: {
                 "travel_agent": f"{travel_config.get('icon', '✈️')} {travel_config.get('title', '旅行规划师')}",
                 "image_recognition": f"{image_config.get('icon', '🖼️')} {image_config.get('title', '图像识别')}",
-                "stock_prediction": f"{stock_config.get('icon', '📈')} {stock_config.get('title', '股票预测')}",
+                "stock_prediction": f"{stock_config.get('icon', '📈')} {stock_config.get('title', '功能目录')}",
                 "readme": f"{readme_config.get('icon', '📖')} {readme_config.get('title', '项目文档')}",
-                "semiconductor_yield": f"{yield_config.get('icon', '🔬')} {yield_config.get('title', '半导体良率分析')}"
+                "semiconductor_yield": f"{yield_config.get('icon', '🔬')} {yield_config.get('title', '半导体良率分析')}",
+                "mcp_agent": f"{mcp_config.get('icon', '🤖')} {mcp_config.get('title', '超级助理')}"
             }[x],
             index=page_options.index(page) if page in page_options else 0,
             key="page_selector"
@@ -149,12 +153,14 @@ def main():
         travel_agent_show_page()
     elif selected_page == "image_recognition":
         image_contetn_recognition_show_page()
-    elif selected_page == "stock_prediction":
-        stock_prediction_agent_show_page()
+    # elif selected_page == "stock_prediction":
+    #     stock_prediction_agent_show_page()
     elif selected_page == "semiconductor_yield":
         semiconductor_yield_show_page()
     elif selected_page == "readme":
         readme_show_page()
+    elif selected_page == "mcp_agent":
+        mcp_agent.show_page()
     else:
         show_homepage()
 
@@ -171,16 +177,13 @@ def show_homepage():
     """, unsafe_allow_html=True)
     
     # 功能模块展示 - 添加readme卡片和股票预测卡片
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     
     travel_config = config_manager.get_page_config("travel_agent")
     image_config = config_manager.get_page_config("image_recognition")
     readme_config = config_manager.get_page_config("readme")
-    stock_config = config_manager.get_page_config("stock_prediction")
-    
-    travel_config = config_manager.get_page_config("travel_agent")
-    image_config = config_manager.get_page_config("image_recognition")
-    readme_config = config_manager.get_page_config("readme")
+    stock_config = config_manager.get_page_config("semiconductor_yield")
+    mcp_config = config_manager.get_page_config("mcp_agent")
 
     with col1:
         features_html = "".join([f'<span class="feature-badge">{f}</span>' for f in readme_config.get("features", [])])
@@ -223,31 +226,48 @@ def show_homepage():
         if st.button("开始分析图像 →", key="image_btn", use_container_width=True):
             st.query_params["page"] = "image_recognition"
             st.rerun()
-    
+        
+
     with col4:
         features_html = "".join([f'<span class="feature-badge">{f}</span>' for f in stock_config.get("features", [])])
         st.markdown(f"""
         <div class="nav-card">
-            <h3>{stock_config.get("icon", "📈")} {stock_config.get("title", "股票预测")}</h3>
+            <h3>{stock_config.get("icon", "📈")} {stock_config.get("title", "导体良率分析")}</h3>
             <p>{stock_config.get("description", "")}</p>
             <div>{features_html}</div>
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("开始股票预测 →", key="stock_btn", use_container_width=True):
-            st.query_params["page"] = "stock_prediction"
+        if st.button("开始半导体良率分析 →", key="semiconductor_btn", use_container_width=True):
+            st.query_params["page"] = "semiconductor_yield"
             st.rerun()
-        features_html = "".join([f'<span class="feature-badge">{f}</span>' for f in image_config.get("features", [])])
+    
+    # with col4:
+    #     features_html = "".join([f'<span class="feature-badge">{f}</span>' for f in stock_config.get("features", [])])
+    #     st.markdown(f"""
+    #     <div class="nav-card">
+    #         <h3>{stock_config.get("icon", "📈")} {stock_config.get("title", "股票预测")}</h3>
+    #         <p>{stock_config.get("description", "")}</p>
+    #         <div>{features_html}</div>
+    #     </div>
+    #     """, unsafe_allow_html=True)
+        
+    #     if st.button("开始股票预测 →", key="stock_btn", use_container_width=True):
+    #         st.query_params["page"] = "stock_prediction"
+    #         st.rerun()
+
+    with col5:
+        features_html = "".join([f'<span class="feature-badge">{f}</span>' for f in mcp_config.get("features", [])])
         st.markdown(f"""
         <div class="nav-card">
-            <h3>{image_config.get("icon", "🖼️")} {image_config.get("title", "智能图像识别")}</h3>
-            <p>{image_config.get("description", "")}</p>
+            <h3>{mcp_config.get("icon", "📈")} {mcp_config.get("title", "超级智能助理 (MCP)")}</h3>
+            <p>{mcp_config.get("description", "")}</p>
             <div>{features_html}</div>
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("开始分析图像 →", key="image_btn", use_container_width=True):
-            st.query_params["page"] = "image_recognition"
+        if st.button("超级智能助理 (MCP) →", key=" mcp_btn", use_container_width=True):
+            st.query_params["page"] = "mcp_agent"
             st.rerun()
 
 if __name__ == "__main__":

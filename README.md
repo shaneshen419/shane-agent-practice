@@ -68,7 +68,7 @@ project/
 │   ├── __init__.py
 |	├── image_contetn_recognition_agent	# 图像识别模块
 |	|	├── __init__py
-|	|	├──image_content_recognition.py
+|	|	├── image_content_recognition.py
 |	├── traval_agent			# 旅行规划模块
 |	|	├── __init__.py
 |	|	├── travel_agent_shane.py

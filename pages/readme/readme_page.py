@@ -73,6 +73,7 @@ def readme_show_page():
         <br><strong>📅 20250912</strong>：加入了README显示模块。
         <br><strong>📅 20250915</strong>：完善了股票预测模块，实现了yfinance数据获取、LSTM模型预测、技术指标分析等功能。
         <br><strong>📅 20250916</strong>：加入了半导体良率分析模块，初步尝试固定步骤执行方式，没有做完，没有输入。
+        <br><strong>📅 20250918</strong>：加入了MCP框架，自动识别用户意图，然后调用相应的agent工具。
     </div>
     """, unsafe_allow_html=True)
     
@@ -133,16 +134,14 @@ def readme_show_page():
     with col3:
         st.markdown("""
         <div class="feature-section">
-            <h4>3. 📈 股票预测</h4>
+            <h4>3. 📈 MCP智能助手</h4>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        - 📊 历史数据分析
-        - 📈 价格预测图表
-        - 📐 技术指标分析
-        - 📋 预测报告生成
-        - ⚡ 实时预测更新
+        - 📊 用户意图识别
+        - 📈 精准调用工具
+        - 📐 json格式返回
         """)
     
     # 添加半导体良率分析模块介绍
@@ -173,6 +172,7 @@ project/
 │   └── config_manager.py     # 配置管理器
 ├── pages/
 │   ├── __init__.py
+│   ├── mcp_agent.py          # MCP智能助手模块
 │   ├── image_content_recognition_agent  # 图像识别模块
 │   │   ├── __init__.py
 │   │   └── image_content_recognition.py
