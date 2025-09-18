@@ -1,7 +1,7 @@
 # pages/mcp_agent.py
 import streamlit as st
 from config import config_manager
-from utils.llm_client import MCPAgentLLM
+from utils.mcp_client import MCPAgentLLM
 
 def show_page():
     page_config = config_manager.get_page_config("mcp_agent")

@@ -8,9 +8,9 @@ try:
     # 切换到上一级目录
     os.chdir('../')
     
-    # 获取当前日期，格式为YYMMDD
-    current_date = datetime.now().strftime('%y%m%d')
-    backup_dir = f"agent_streamlit_study_bak_{current_date}"
+    # 获取当前日期和时间，格式为YYMMDD_HHMM
+    current_datetime = datetime.now().strftime('%y%m%d_%H%M')
+    backup_dir = f"agent_streamlit_study_bak_{current_datetime}"
     
     # 删除已存在的备份目录（如果存在的话）
     existing_backups = glob.glob("agent_streamlit_study_bak_*")
