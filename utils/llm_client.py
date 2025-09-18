@@ -93,24 +93,75 @@ class TravelPlannerLLM(LLMClient):
         context: 任务上下文，可能包含前置任务的结果
         """
         print(f"✈️ TravelPlannerLLM 正在执行: {task_description}")
-        # 从任务描述中解析目的地和天数 (这是一个简化的解析，实际可能需要LLM)
-        # 例如，我们可以用正则表达式来提取关键信息
-        match_dest = re.search(r"为(.*?)的", task_description)
-        match_days = re.search(r"(\d+)日游", task_description)
+        # 使用LLM来解析任务描述中的目的地和天数信息
+        parsed_info = self._parse_task_with_llm(task_description)
         
-        if not match_dest or not match_days:
-            return f"错误：无法从任务 '{task_description}' 中解析出目的地和天数。"
+        destination = parsed_info.get("destination")
+        days = parsed_info.get("days")
         
-        destination = match_dest.group(1)
-        num_days = int(match_days.group(1))
+        # 如果LLM解析失败，则尝试使用正则表达式解析
+        if not destination or not days:
+            import re
+            print("🔄 LLM解析失败，尝试使用正则表达式解析...")
+            
+            # 尝试提取目的地 - 使用更精确的模式
+            destination_match = re.search(r'安排一下([\u4e00-\u9fa5]{2,5})(?=国庆)', task_description)
+            destination = destination_match.group(1) if destination_match else None
+            
+            # 尝试提取天数 - 匹配中文数字或阿拉伯数字
+            days_match = re.search(r'(?:(\d+)|([一二三四五六七八九十]))天', task_description)
+            days = days_match.group(1) if days_match else None
+            # 如果匹配到中文数字，需要转换为阿拉伯数字
+            days_dict = {'一': '1', '二': '2', '三': '3', '四': '4', '五': '5', '六': '6', '七': '7', '八': '8', '九': '9', '十': '10'}
+            if not days and days_match and days_match.group(2):
+                days = days_dict.get(days_match.group(2))
+            
+            if not destination or not days:
+                return f"错误：无法从任务 '{task_description}' 中解析出目的地和天数。"
+        
+        num_days = int(days)
 
-        # 调用已有的非流式方法来完成任务
+        # 使用流式方法来完成任务
         try:
-            result = self.generate_itinerary(destination, num_days)
+            result = ""
+            for chunk in self.generate_itinerary_stream(destination, num_days):
+                result += chunk
             print(f"✈️ TravelPlannerLLM 完成任务。")
             return result
         except Exception as e:
             return f"旅行规划执行失败: {e}"
+
+    def _parse_task_with_llm(self, task_description: str) -> dict:
+        """使用LLM来智能解析任务描述中的目的地和天数信息"""
+        try:
+            parse_prompt = f"""
+请从以下任务描述中提取旅行规划信息：
+
+任务描述: \"{task_description}\"
+
+请返回JSON格式的结果：
+{{
+    \"destination\": \"目的地城市名称\",
+    \"days\": 天数（数字）
+}}
+
+如果无法确定某个信息，请返回null。
+"""
+            
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": parse_prompt}],
+                temperature=0.1,
+                response_format={"type": "json_object"}
+            )
+            
+            result = json.loads(response.choices[0].message.content)
+            print(f"🧠 LLM解析结果: {result}")
+            return result
+            
+        except Exception as e:
+            print(f"⚠️ LLM解析失败: {e}")
+            return {}
 
 class VisionLLMClient(LLMClient):
     """视觉识别专用LLM客户端"""
@@ -373,6 +424,42 @@ class MCPAgentLLM(LLMClient):
             "VisionLLMClient": VisionLLMClient,
             "ReadmeViewerLLM": ReadmeViewerLLM
         }
+
+    def execute_task(self, task_description: str, context: dict, config_manager=None) -> str:
+        """
+        作为工具被MCP调用时执行的具体任务。
+        task_description: MCP分配的具体指令, e.g., "为去巴黎的5日游制定一个行程"
+        context: 任务上下文，可能包含前置任务的结果
+        config_manager: 配置管理器实例
+        """
+        print(f"🧠 MCPAgentLLM 正在执行: {task_description}")
+        
+        # 生成计划
+        plan = self.plan(task_description, context)
+        print(f"📋 生成的计划: {plan}")
+        
+        # 如果计划为空或失败，尝试使用LLM解析任务描述
+        if not plan or (isinstance(plan, list) and len(plan) == 0):
+            print("⚠️ 计划为空，尝试使用LLM解析任务描述...")
+            parsed_info = self._parse_task_with_llm(task_description)
+            if parsed_info and 'destination' in parsed_info and 'days' in parsed_info:
+                destination = parsed_info['destination']
+                days = parsed_info['days']
+                if destination and days:
+                    # 创建一个备用计划
+                    plan = [{
+                        "task_id": "task_1",
+                        "description": f"为{destination}的{days}日游制定详细行程",
+                        "tool": "travel_planner",
+                        "dependencies": []
+                    }]
+                    print(f"✅ 使用LLM解析结果创建备用计划: {plan}")
+        
+        # 执行计划
+        result = self.execute_plan(plan, config_manager, context)
+        
+        # 转换为JSON字符串返回
+        return json.dumps(result, indent=2, ensure_ascii=False)
 
     def plan(self, goal: str, context: dict = None) -> list:
         """
@@ -676,18 +763,18 @@ class MCPAgentLLM(LLMClient):
         """使用LLM来智能解析任务描述中的目的地和天数信息"""
         try:
             parse_prompt = f"""
-    请从以下任务描述中提取旅行规划信息：
+请从以下任务描述中提取旅行规划信息：
 
-    任务描述: "{task_description}"
+任务描述: "{task_description}"
 
-    请返回JSON格式的结果：
-    {{
-        "destination": "目的地城市名称",
-        "days": 天数（数字）
-    }}
+请返回JSON格式的结果：
+{{
+    "destination": "目的地城市名称",
+    "days": 天数（数字）
+}}
 
-    如果无法确定某个信息，请返回null。
-    """
+如果无法确定某个信息，请返回null。
+"""
             
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -702,7 +789,24 @@ class MCPAgentLLM(LLMClient):
             
         except Exception as e:
             print(f"⚠️ LLM解析失败: {e}")
-            return {}
+            # 当LLM解析失败时，使用正则表达式作为备选方案
+            import re
+            print("🔄 使用正则表达式作为备选方案...")
+            
+            # 尝试提取目的地
+            destination_match = re.search(r'[去往|前往|到|去]?([\u4e00-\u9fa5]{2,10})[旅游|旅行|游玩]?', task_description)
+            destination = destination_match.group(1) if destination_match else None
+            
+            # 尝试提取天数
+            days_match = re.search(r'(\d+)[天日]', task_description)
+            days = days_match.group(1) if days_match else None
+            
+            result = {
+                "destination": destination,
+                "days": days
+            }
+            print(f"🧠 正则表达式解析结果: {result}")
+            return result
     def debug_tool_classes(self):
         """调试工具类配置"""
         print("🔍 调试工具类配置:")
